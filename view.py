@@ -25,6 +25,7 @@ class View:
         self.sidepanel.AddLIneButton.bind("<Button>", self._add_new_line)
         self.sidepanel.RemoveLIneButton.bind("<Button>", self._remove_selected_line)
         self.sidepanel.SaveButton.bind("<Button>", self._save)
+        self.sidepanel.OpenButton.bind("<Button>", self._open)
 
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
@@ -34,6 +35,15 @@ class View:
 
         self.selected_line_id = None
         self.do_select_lines = False
+
+        self.draw_lines(None)
+
+    def _open(self, event):
+        filename = filedialog.askopenfile(mode='r', defaultextension='.pickle')
+        if filename is None:
+            return
+        self.model.open_pattern(filename.name)
+        self.draw_lines(None)
     
     def _save(self, event):
         filename = filedialog.asksaveasfile(mode='w', defaultextension='.pickle')

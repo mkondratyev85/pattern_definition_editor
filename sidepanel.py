@@ -16,3 +16,5 @@ class SidePanel():
         self.RemoveLIneButton.pack(side="top", fill=tk.BOTH)
         self.SaveButton = tk.Button(self.frame2, text="Save Pattern")
         self.SaveButton.pack(side="top", fill=tk.BOTH)
+        self.OpenButton = tk.Button(self.frame2, text="Open Pattern")
+        self.OpenButton.pack(side="top", fill=tk.BOTH)

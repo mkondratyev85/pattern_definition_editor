@@ -28,11 +28,29 @@ class Model:
             l.append(line.as_list())
         return l
 
+    def from_list_to_lines(self, list_):
+        self.lines = []
+        for l in list_:
+            line = Line(angle=l[0],
+                        base_point=l[1],
+                        offset=l[2],
+                        dash_length_items=l[3],
+                        )
+            self.lines.append(line)
+        
+
+
     def save_pattern(self, filename):
-        print('saving to file', filename)
         lines = self.get_list_of_lines()
         with open(filename, 'wb') as f:
             pickle.dump(lines, f)
+
+    def open_pattern(self, filename):
+        with open(filename, 'rb') as f:
+            lines = pickle.load(f)
+
+        self.from_list_to_lines(lines)
+
 
 
 
