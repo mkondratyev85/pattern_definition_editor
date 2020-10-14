@@ -12,7 +12,6 @@ class Controller:
         self.view = View(self.root, self.model)
 
     def run(self):
-        # self.root.geometry('400x250+300+300')
         self.root.mainloop()
 
 
