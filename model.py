@@ -1,6 +1,7 @@
 import math
 from dataclasses import dataclass, field
 from typing import Tuple, List, Optional
+import pickle
 
 
 class Model:
@@ -20,6 +21,19 @@ class Model:
 
     def remove_line(self, line):
         self.lines.remove(line)
+
+    def get_list_of_lines(self):
+        l = []
+        for line in self.lines:
+            l.append(line.as_list())
+        return l
+
+    def save_pattern(self, filename):
+        print('saving to file', filename)
+        lines = self.get_list_of_lines()
+        with open(filename, 'wb') as f:
+            pickle.dump(lines, f)
+
 
 
 @dataclass

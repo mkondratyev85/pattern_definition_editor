@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import filedialog
 import math
 
 from sidepanel import SidePanel
@@ -23,6 +24,7 @@ class View:
         self.sidepanel.SelectLIneButton.bind("<Button>", self._switch_line_selection_on)
         self.sidepanel.AddLIneButton.bind("<Button>", self._add_new_line)
         self.sidepanel.RemoveLIneButton.bind("<Button>", self._remove_selected_line)
+        self.sidepanel.SaveButton.bind("<Button>", self._save)
 
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
@@ -32,6 +34,12 @@ class View:
 
         self.selected_line_id = None
         self.do_select_lines = False
+    
+    def _save(self, event):
+        filename = filedialog.asksaveasfile(mode='w', defaultextension='.pickle')
+        if filename is None:
+            return
+        self.model.save_pattern(filename.name)
 
     def _add_new_line(self, event):
         self.model.add_new_line()
