@@ -14,7 +14,7 @@ class View:
         self.canvas = tk.Canvas(self.frame)
 
         self.sidepanel = SidePanel(root)
-        self.sidepanel.plotBut.bind("<Button>", self.plot)
+        self.sidepanel.plotBut.bind("<Button>", self.draw_lines)
         self.sidepanel.clearButton.bind("<Button>", self.clear)
 
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
@@ -23,20 +23,16 @@ class View:
         self.canvas.delete('all')
 
     def on_line_click(self, event):
-        print(event)
-        cliecked_object_id = event.widget.find_closest(event.x, event.y)[0]
-        print(cliecked_object_id)
-        line = next(filter(lambda x: x.canvas_line_id == cliecked_object_id, self.model.lines), None)
+        clicked_object_id = event.widget.find_closest(event.x, event.y)[0]
+        line = self.get_line_by_object_id(clicked_object_id)
+        self.draw_anchors(clicked_object_id)
         print(line)
 
-    def plot(self, event):
-        RW=5  # width of point
+    def draw_lines(self, event):
         self.canvas.delete('all')
         for line in self.model.lines:
-            print(line)
             x0, y0 = line.base_point
-            x1 = x0 + 100 * math.cos(math.radians(line.angle))
-            y1 = y0 + 100 * math.sin(math.radians(line.angle))
+            x1, y1 = line.second_point
 
             # draw line
             line_id = self.canvas.create_line(x0, y0, x1, y1)
@@ -47,5 +43,23 @@ class View:
 
             # draw base_point
             # self.canvas.create_rectangle(x0-RW, y0-RW, x0+RW, y0+RW)
+        self.draw_anchors(self.model.lines[0].canvas_line_id, new=True)
+
+    def get_line_by_object_id(self, canvas_object_id):
+        line = next(filter(lambda x: x.canvas_line_id == canvas_object_id, self.model.lines), None)
+        return line
+
+    def draw_anchors(self, line_id, new=False):
+        RW=5  # width of point
+        line = self.get_line_by_object_id(line_id)
+        x0, y0 = line.base_point
+        x1, y1 = line.second_point
+        coords = (x0-RW, y0-RW, x0+RW, y0+RW)
+        if new:
+            id = self.canvas.create_rectangle(*coords)
+            self.base_point_anchor_id = id
+        else:
+            self.canvas.coords(self.base_point_anchor_id, coords)
+
 
 
