@@ -38,6 +38,14 @@ class View:
         self.dash_var = tk.StringVar()
         self.sidepanel.DashEntry.config(textvariable=self.dash_var)
 
+        # self.angle_var.trace("w", self._angle_var_callback)
+        # self.base_point_var.trace("w", self._base_point_var_callback)
+        # self.offset_var.trace("w", self._offset_var_callback)
+        self.sidepanel.AngleEntry.bind("<KeyRelease>", self._angle_var_callback)
+        self.sidepanel.BasePointEntry.bind("<KeyRelease>", self._base_point_var_callback)
+        self.sidepanel.OffsetEntry.bind("<KeyRelease>", self._offset_var_callback)
+        self.sidepanel.DashEntry.bind("<KeyRelease>", self._dash_var_callback)
+
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
         self.canvas.bind('<ButtonPress-1>', self.on_line_click)
@@ -48,6 +56,58 @@ class View:
         self.do_select_lines = False
 
         self.draw_lines(None)
+
+    def _angle_var_callback(self, *args):
+        val = self.angle_var.get()
+        line = self.get_line_by_object_id(self.selected_line_id)
+        try:
+            line.angle = float(val)
+            self.redraw_line(self.selected_line_id)
+        except ValueError:
+            pass
+            # self.angle_var.set(line.angle)
+
+    def _base_point_var_callback(self, *args):
+        val = self.base_point_var.get()
+        line = self.get_line_by_object_id(self.selected_line_id)
+        try:
+            val = val[1:-2] # remove square braces
+            val = val.split(',')
+            x = float(val[0])
+            y = float(val[1])
+            line.base_point = x, y
+            self.redraw_line(self.selected_line_id)
+        except ValueError:
+            pass
+            # self.angle_var.set(f'{line.base_point}')
+
+    def _offset_var_callback(self, *args):
+        val = self.offset_var.get()
+        line = self.get_line_by_object_id(self.selected_line_id)
+        try:
+            val = val[1:-2] # remove square braces
+            val = val.split(',')
+            dx = float(val[0])
+            dy = float(val[1])
+            line.offset = dx, dy
+            self.redraw_line(self.selected_line_id)
+        except ValueError:
+            pass
+            # self.angle_var.set(f'{line.base_point}')
+
+    def _dash_var_callback(self, *args):
+        val = self.dash_var.get()
+        line = self.get_line_by_object_id(self.selected_line_id)
+        try:
+            val = val[1:-2] # remove square braces
+            val = val.split(',')
+            d0 = float(val[0])
+            d1 = float(val[1])
+            line.dash_length_items = [d0, d1]
+            self.redraw_line(self.selected_line_id)
+        except ValueError:
+            pass
+            # self.angle_var.set(f'{line.base_point}')
 
     def _add_dash(self, event):
         line = self.get_line_by_object_id(self.selected_line_id)
