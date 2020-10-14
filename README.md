@@ -46,4 +46,4 @@ This will produce hatched pattern that is supported at least by AutoCad and QCad
 
 ## Requirements
 
-python3.9
+python3.7
