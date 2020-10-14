@@ -12,3 +12,5 @@ class SidePanel():
         self.SelectLIneButton.pack(side="top", fill=tk.BOTH)
         self.AddLIneButton = tk.Button(self.frame2, text="Add Line")
         self.AddLIneButton.pack(side="top", fill=tk.BOTH)
+        self.RemoveLIneButton = tk.Button(self.frame2, text="Remove Selected Line")
+        self.RemoveLIneButton.pack(side="top", fill=tk.BOTH)

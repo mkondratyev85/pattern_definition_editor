@@ -18,6 +18,9 @@ class Model:
     def add_new_line(self):
         self.lines.append(Line())
 
+    def remove_line(self, line):
+        self.lines.remove(line)
+
 
 @dataclass
 class Line:

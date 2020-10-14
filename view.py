@@ -22,6 +22,7 @@ class View:
         self.sidepanel.clearButton.bind("<Button>", self.clear)
         self.sidepanel.SelectLIneButton.bind("<Button>", self._switch_line_selection_on)
         self.sidepanel.AddLIneButton.bind("<Button>", self._add_new_line)
+        self.sidepanel.RemoveLIneButton.bind("<Button>", self._remove_selected_line)
 
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
@@ -34,6 +35,11 @@ class View:
 
     def _add_new_line(self, event):
         self.model.add_new_line()
+        self.draw_lines(event)
+
+    def _remove_selected_line(self, event):
+        line = self.get_line_by_object_id(self.selected_line_id)
+        self.model.remove_line(line)
         self.draw_lines(event)
 
     def _switch_line_selection_on(self, event):
@@ -83,13 +89,7 @@ class View:
 
     def draw_lines(self, event):
         self.canvas.delete('all')
-        print()
-        print('vvvvvvvvv')
-        print(len(self.model.lines))
         for line in self.model.lines:
-            print(line)
-            print()
-
             line.canvas_line_id = []
             for coords in line.get_many_lines():
                 id = self.canvas.create_line(*coords)
