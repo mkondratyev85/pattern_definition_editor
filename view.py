@@ -8,6 +8,7 @@ DEFAULT = 0
 MOVE_BASE_POINT = 1
 MOVE_SECOND_POINT = 2
 MOVE_OFFSET_POINT = 3
+MOVE_THIRD_POINT = 4
 
 class View:
     def __init__(self, root, model):
@@ -26,6 +27,7 @@ class View:
         self.sidepanel.RemoveLIneButton.bind("<Button>", self._remove_selected_line)
         self.sidepanel.SaveButton.bind("<Button>", self._save)
         self.sidepanel.OpenButton.bind("<Button>", self._open)
+        self.sidepanel.AddDashButton.bind('<Button>', self._add_dash)
 
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
@@ -37,6 +39,11 @@ class View:
         self.do_select_lines = False
 
         self.draw_lines(None)
+
+    def _add_dash(self, event):
+        line = self.get_line_by_object_id(self.selected_line_id)
+        line.add_dash()
+        self.redraw_line(self.selected_line_id)
 
     def _open(self, event):
         filename = filedialog.askopenfile(mode='r', defaultextension='.pickle')
@@ -83,6 +90,8 @@ class View:
         elif self.mode == MOVE_OFFSET_POINT:
             x0, y0 = line.base_point
             line.offset = (x-x0, y-y0)
+        elif self.mode == MOVE_THIRD_POINT:
+            line.update_3nd_point(x, y)
 
         self.redraw_line(self.selected_line_id)
 
@@ -103,6 +112,8 @@ class View:
             self.mode = MOVE_SECOND_POINT
         elif self.offset_point_anchor_id in clicked_object_ids:
             self.mode = MOVE_OFFSET_POINT
+        elif self.third_point_anchor_id in clicked_object_ids:
+            self.mode = MOVE_THIRD_POINT
         
 
     def draw_lines(self, event):
@@ -136,9 +147,15 @@ class View:
         x1, y1 = line.second_point
         dx, dy = line.offset
         xo, yo = x0+dx, y0+dy
+        x3, y3 = line.third_point
         base_coords = (x0-RW, y0-RW, x0+RW, y0+RW)
         second_coords = (x1-2*RW, y1-RW, x1+2*RW, y1+RW)
         offset_coords = (xo-RW, yo-RW, xo+RW, yo+RW)
+        if line.dash_length_items:
+            third_coords = (x3-RW, y3-RW, x3+RW, y3+RW)
+        else:
+            # in case we have a solid line we shift third point far beyond screen
+            third_coords = -10,-10,-10,-10
         if new:
             id = self.canvas.create_rectangle(*base_coords)
             self.base_point_anchor_id = id
@@ -146,10 +163,13 @@ class View:
             self.second_point_anchor_id = id
             id = self.canvas.create_rectangle(*offset_coords)
             self.offset_point_anchor_id = id
+            id = self.canvas.create_rectangle(*third_coords)
+            self.third_point_anchor_id = id
         else:
             self.canvas.coords(self.base_point_anchor_id, base_coords)
             self.canvas.coords(self.second_point_anchor_id, second_coords)
             self.canvas.coords(self.offset_point_anchor_id, offset_coords)
+            self.canvas.coords(self.third_point_anchor_id, third_coords)
 
 
 
