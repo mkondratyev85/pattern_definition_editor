@@ -6,6 +6,7 @@ from sidepanel import SidePanel
 DEFAULT = 0
 MOVE_BASE_POINT = 1
 MOVE_SECOND_POINT = 2
+MOVE_OFFSET_POINT = 3
 
 class View:
     def __init__(self, root, model):
@@ -44,6 +45,9 @@ class View:
             line.base_point = x, y
         elif self.mode == MOVE_SECOND_POINT:
             line.update_2nd_point(x, y)
+        elif self.mode == MOVE_OFFSET_POINT:
+            x0, y0 = line.base_point
+            line.offset = (x-x0, y-y0)
 
         self.redraw_line(self.selected_line_id)
 
@@ -53,10 +57,12 @@ class View:
         if line:
             self.selected_line_id = clicked_object_id
             self.redraw_line(clicked_object_id)
-        if clicked_object_id == self.base_point_anchor_id:
+        elif clicked_object_id == self.base_point_anchor_id:
             self.mode = MOVE_BASE_POINT
-        if clicked_object_id == self.second_point_anchor_id:
+        elif clicked_object_id == self.second_point_anchor_id:
             self.mode = MOVE_SECOND_POINT
+        elif clicked_object_id == self.offset_point_anchor_id:
+            self.mode = MOVE_OFFSET_POINT
         
 
     def draw_lines(self, event):
@@ -79,10 +85,13 @@ class View:
 
     def redraw_line(self, line_id, new=False):
         line = self.get_line_by_object_id(line_id)
-        x0, y0 = line.base_point
-        x1, y1 = line.second_point
-        coords = (x0, y0, x1, y1)
-        self.canvas.coords(line_id, coords)
+        canvas_line_ids = line.canvas_line_id
+        for id, coords in zip(line.canvas_line_id, line.get_many_lines()):
+            
+        # x0, y0 = line.base_point
+        # x1, y1 = line.second_point
+            # coords = (x0, y0, x1, y1)
+            self.canvas.coords(id, coords)
         self.draw_anchors(line_id, new)
 
     def draw_anchors(self, line_id, new=False):
@@ -90,16 +99,22 @@ class View:
         line = self.get_line_by_object_id(line_id)
         x0, y0 = line.base_point
         x1, y1 = line.second_point
+        dx, dy = line.offset
+        xo, yo = x0+dx, y0+dy
         base_coords = (x0-RW, y0-RW, x0+RW, y0+RW)
         second_coords = (x1-2*RW, y1-RW, x1+2*RW, y1+RW)
+        offset_coords = (xo-RW, yo-RW, xo+RW, yo+RW)
         if new:
             id = self.canvas.create_rectangle(*base_coords)
             self.base_point_anchor_id = id
             id = self.canvas.create_rectangle(*second_coords)
             self.second_point_anchor_id = id
+            id = self.canvas.create_rectangle(*offset_coords)
+            self.offset_point_anchor_id = id
         else:
             self.canvas.coords(self.base_point_anchor_id, base_coords)
             self.canvas.coords(self.second_point_anchor_id, second_coords)
+            self.canvas.coords(self.offset_point_anchor_id, offset_coords)
 
 
 
