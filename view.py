@@ -29,6 +29,23 @@ class View:
         self.sidepanel.OpenButton.bind("<Button>", self._open)
         self.sidepanel.AddDashButton.bind('<Button>', self._add_dash)
 
+        self.angle_var = tk.StringVar()
+        self.sidepanel.AngleEntry.config(textvariable=self.angle_var)
+        self.base_point_var = tk.StringVar()
+        self.sidepanel.BasePointEntry.config(textvariable=self.base_point_var)
+        self.offset_var = tk.StringVar()
+        self.sidepanel.OffsetEntry.config(textvariable=self.offset_var)
+        self.dash_var = tk.StringVar()
+        self.sidepanel.DashEntry.config(textvariable=self.dash_var)
+
+        # self.angle_var.trace("w", self._angle_var_callback)
+        # self.base_point_var.trace("w", self._base_point_var_callback)
+        # self.offset_var.trace("w", self._offset_var_callback)
+        self.sidepanel.AngleEntry.bind("<KeyRelease>", self._angle_var_callback)
+        self.sidepanel.BasePointEntry.bind("<KeyRelease>", self._base_point_var_callback)
+        self.sidepanel.OffsetEntry.bind("<KeyRelease>", self._offset_var_callback)
+        self.sidepanel.DashEntry.bind("<KeyRelease>", self._dash_var_callback)
+
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
         self.canvas.bind('<ButtonPress-1>', self.on_line_click)
@@ -39,6 +56,56 @@ class View:
         self.do_select_lines = False
 
         self.draw_lines(None)
+
+    def _angle_var_callback(self, *args):
+        val = self.angle_var.get()
+        line = self.get_line_by_object_id(self.selected_line_id)
+        try:
+            line.angle = float(val)
+            self.redraw_line(self.selected_line_id)
+        except ValueError:
+            pass
+            # self.angle_var.set(line.angle)
+
+    def _base_point_var_callback(self, *args):
+        val = self.base_point_var.get()
+        line = self.get_line_by_object_id(self.selected_line_id)
+        try:
+            val = val.split(',')
+            x = float(val[0])
+            y = float(val[1])
+            line.base_point = x, y
+            self.redraw_line(self.selected_line_id)
+        except ValueError:
+            pass
+            # self.angle_var.set(f'{line.base_point}')
+
+    def _offset_var_callback(self, *args):
+        val = self.offset_var.get()
+        line = self.get_line_by_object_id(self.selected_line_id)
+        try:
+            val = val.split(',')
+            dx = float(val[0])
+            dy = float(val[1])
+            line.offset = dx, dy
+            self.redraw_line(self.selected_line_id)
+        except ValueError:
+            pass
+            # self.angle_var.set(f'{line.base_point}')
+
+    def _dash_var_callback(self, *args):
+        val = self.dash_var.get()
+        line = self.get_line_by_object_id(self.selected_line_id)
+        try:
+            # val = val[1:-2] # remove square braces
+            val = val.split(',')
+            d0 = float(val[0])
+            d1 = float(val[1])
+            line.dash_length_items = [d0, d1]
+            self.redraw_line(self.selected_line_id)
+        except ValueError:
+            pass
+            # self.angle_var.set(f'{line.base_point}')
 
     def _add_dash(self, event):
         line = self.get_line_by_object_id(self.selected_line_id)
@@ -105,7 +172,6 @@ class View:
                 self.selected_line_id = clicked_object_ids[0]
                 self.redraw_line(clicked_object_ids[0])
                 self.do_select_lines = False
-                print(line.as_list())
         elif self.base_point_anchor_id in clicked_object_ids:
             self.mode = MOVE_BASE_POINT
         elif self.second_point_anchor_id in clicked_object_ids:
@@ -114,6 +180,16 @@ class View:
             self.mode = MOVE_OFFSET_POINT
         elif self.third_point_anchor_id in clicked_object_ids:
             self.mode = MOVE_THIRD_POINT
+        
+    def _update_entries(self):
+        line = self.get_line_by_object_id(self.selected_line_id)
+        self.angle_var.set(line.angle)
+        self.base_point_var.set(f'{line.base_point[0]}, {line.base_point[1]}')
+        self.offset_var.set(f'{line.offset[0]}, {line.offset[1]}')
+        if line.dash_length_items:
+            self.dash_var.set(f'{line.dash_length_items[0]}, {line.dash_length_items[1]}')
+        else:
+            self.dash_var.set('[please add dash to line first]')
         
 
     def draw_lines(self, event):
@@ -139,6 +215,7 @@ class View:
         for id, coords in zip(line.canvas_line_id, line.get_many_lines()):
             self.canvas.coords(id, coords)
         self.draw_anchors(line_id, new)
+        self._update_entries()
 
     def draw_anchors(self, line_id, new=False):
         RW = 5  # width of point
