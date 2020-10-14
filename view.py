@@ -5,6 +5,7 @@ from sidepanel import SidePanel
 
 DEFAULT = 0
 MOVE_BASE_POINT = 1
+MOVE_SECOND_POINT = 2
 
 class View:
     def __init__(self, root, model):
@@ -38,7 +39,12 @@ class View:
             return
         x, y = event.x, event.y
         line = self.get_line_by_object_id(self.selected_line_id)
-        line.base_point = x, y
+
+        if self.mode == MOVE_BASE_POINT:
+            line.base_point = x, y
+        elif self.mode == MOVE_SECOND_POINT:
+            line.update_2nd_point(x, y)
+
         self.redraw_line(self.selected_line_id)
 
     def on_line_click(self, event):
@@ -49,6 +55,8 @@ class View:
             self.redraw_line(clicked_object_id)
         if clicked_object_id == self.base_point_anchor_id:
             self.mode = MOVE_BASE_POINT
+        if clicked_object_id == self.second_point_anchor_id:
+            self.mode = MOVE_SECOND_POINT
         
 
     def draw_lines(self, event):

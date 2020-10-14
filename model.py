@@ -52,3 +52,10 @@ class Line:
         x1 = x0 + self.length * math.cos(math.radians(self.angle))
         y1 = y0 + self.length * math.sin(math.radians(self.angle))
         return x1, y1
+
+    def update_2nd_point(self, x1: float, y1: float) -> None:
+        '''
+        Updates angle and dash_length_items based of 2nd point
+        '''
+        x0, y0 = self.base_point
+        self.angle = math.degrees(math.atan2((y1 - y0), (x1 - x0)))
