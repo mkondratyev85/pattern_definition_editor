@@ -1,7 +1,5 @@
 import tkinter as tk
 import math
-# from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-# from matplotlib.figure import Figure
 
 from sidepanel import SidePanel
 
@@ -42,12 +40,14 @@ class View:
         line = self.get_line_by_object_id(self.selected_line_id)
         line.base_point = x, y
         self.draw_anchors(self.selected_line_id)
+        self.redraw_line(self.selected_line_id)
         print('motion')
 
     def on_line_click(self, event):
         clicked_object_id = event.widget.find_closest(event.x, event.y)[0]
         line = self.get_line_by_object_id(clicked_object_id)
         if line:
+            self.selected_line_id = clicked_object_id
             self.draw_anchors(clicked_object_id)
             print(line)
         if clicked_object_id == self.base_point_anchor_id:
@@ -71,6 +71,13 @@ class View:
     def get_line_by_object_id(self, canvas_object_id):
         line = next(filter(lambda x: x.canvas_line_id == canvas_object_id, self.model.lines), None)
         return line
+
+    def redraw_line(self, line_id):
+        line = self.get_line_by_object_id(line_id)
+        x0, y0 = line.base_point
+        x1, y1 = line.second_point
+        coords = (x0, y0, x1, y1)
+        self.canvas.coords(line_id, coords)
 
     def draw_anchors(self, line_id, new=False):
         RW=5  # width of point
