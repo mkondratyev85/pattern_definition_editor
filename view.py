@@ -29,6 +29,15 @@ class View:
         self.sidepanel.OpenButton.bind("<Button>", self._open)
         self.sidepanel.AddDashButton.bind('<Button>', self._add_dash)
 
+        self.angle_var = tk.StringVar()
+        self.sidepanel.AngleEntry.config(textvariable=self.angle_var)
+        self.base_point_var = tk.StringVar()
+        self.sidepanel.BasePointEntry.config(textvariable=self.base_point_var)
+        self.offset_var = tk.StringVar()
+        self.sidepanel.OffsetEntry.config(textvariable=self.offset_var)
+        self.dash_var = tk.StringVar()
+        self.sidepanel.DashEntry.config(textvariable=self.dash_var)
+
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
         self.canvas.bind('<ButtonPress-1>', self.on_line_click)
@@ -105,7 +114,6 @@ class View:
                 self.selected_line_id = clicked_object_ids[0]
                 self.redraw_line(clicked_object_ids[0])
                 self.do_select_lines = False
-                print(line.as_list())
         elif self.base_point_anchor_id in clicked_object_ids:
             self.mode = MOVE_BASE_POINT
         elif self.second_point_anchor_id in clicked_object_ids:
@@ -115,6 +123,12 @@ class View:
         elif self.third_point_anchor_id in clicked_object_ids:
             self.mode = MOVE_THIRD_POINT
         
+    def _update_entries(self):
+        line = self.get_line_by_object_id(self.selected_line_id)
+        self.angle_var.set(line.angle)
+        self.base_point_var.set(f'{line.base_point}')
+        self.offset_var.set(f'{line.offset}')
+        self.dash_var.set(f'{line.dash_length_items}')
 
     def draw_lines(self, event):
         self.canvas.delete('all')
@@ -139,6 +153,7 @@ class View:
         for id, coords in zip(line.canvas_line_id, line.get_many_lines()):
             self.canvas.coords(id, coords)
         self.draw_anchors(line_id, new)
+        self._update_entries()
 
     def draw_anchors(self, line_id, new=False):
         RW = 5  # width of point
