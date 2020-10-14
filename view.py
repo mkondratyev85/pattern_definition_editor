@@ -20,6 +20,7 @@ class View:
         self.sidepanel = SidePanel(root)
         self.sidepanel.plotBut.bind("<Button>", self.draw_lines)
         self.sidepanel.clearButton.bind("<Button>", self.clear)
+        self.sidepanel.SelectLIneButton.bind("<Button>", self._switch_line_selection_on)
 
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
@@ -28,6 +29,11 @@ class View:
         self.canvas.bind('<B1-Motion>', self.on_motion)
 
         self.selected_line_id = None
+        self.do_select_lines = False
+
+    def _switch_line_selection_on(self, event):
+        self.do_select_lines = True
+
 
     def clear(self, event):
         self.canvas.delete('all')
@@ -52,16 +58,20 @@ class View:
         self.redraw_line(self.selected_line_id)
 
     def on_line_click(self, event):
-        clicked_object_id = event.widget.find_closest(event.x, event.y)[0]
-        line = self.get_line_by_object_id(clicked_object_id)
-        if line:
-            self.selected_line_id = clicked_object_id
-            self.redraw_line(clicked_object_id)
-        elif clicked_object_id == self.base_point_anchor_id:
+        x, y = event.x, event.y
+        SNAP_TOLERANCE = 5
+        clicked_object_ids = event.widget.find_overlapping(x-SNAP_TOLERANCE, y-SNAP_TOLERANCE, x+SNAP_TOLERANCE, y+SNAP_TOLERANCE)
+        if self.do_select_lines:
+            line = self.get_line_by_object_id(clicked_object_ids[0])
+            if line:
+                self.selected_line_id = clicked_object_ids[0]
+                self.redraw_line(clicked_object_ids[0])
+                self.do_select_lines = False
+        elif self.base_point_anchor_id in clicked_object_ids:
             self.mode = MOVE_BASE_POINT
-        elif clicked_object_id == self.second_point_anchor_id:
+        elif self.second_point_anchor_id in clicked_object_ids:
             self.mode = MOVE_SECOND_POINT
-        elif clicked_object_id == self.offset_point_anchor_id:
+        elif self.offset_point_anchor_id in clicked_object_ids:
             self.mode = MOVE_OFFSET_POINT
         
 
@@ -91,7 +101,7 @@ class View:
         self.draw_anchors(line_id, new)
 
     def draw_anchors(self, line_id, new=False):
-        RW = 5  # width of point
+        RW = 10  # width of point
         line = self.get_line_by_object_id(line_id)
         x0, y0 = line.base_point
         x1, y1 = line.second_point
