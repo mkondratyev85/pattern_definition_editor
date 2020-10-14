@@ -6,9 +6,6 @@ from typing import Tuple, List, Optional
 class Model:
 
     def __init__(self):
-        self.xpoint = 200
-        self.ypoint = 200
-        self.res = None
         self.lines = [
                 Line(base_point=(10, 10),
                      angle=30,
@@ -18,13 +15,8 @@ class Model:
                      offset=(20, 20),
                      ),
                 ]
-
-
-    def calculate(self):
-        pass
-        # x, y = np.meshgrid(np.linspace(-5, 5, self.xpoint), np.linspace(-5, 5, self.ypoint))
-        # z = np.cos(x ** 2 * y ** 3)
-        # self.res = {"x": x, "y": y, "z": z}
+    def add_new_line(self):
+        self.lines.append(Line())
 
 
 @dataclass
@@ -34,8 +26,8 @@ class Line:
     '''
 
     angle: float = 0
-    base_point: Tuple[float, float] = (0, 0)
-    offset: Tuple[float, float] = (0, 0)
+    base_point: Tuple[float, float] = (10, 10)
+    offset: Tuple[float, float] = (10, 10)
     dash_length_items: list = field(default_factory=list)
     canvas_line_id: Optional[int] = None
 
@@ -96,5 +88,11 @@ class Line:
 
     def __hash__(self):
         return hash(str(self.base_point) + str(self.offset) + str(self.angle) + str(self.dash_length_items))
+
+    def as_list(self):
+        return [self.angle,
+                self.base_point,
+                self.offset,
+                self.dash_length_items]
 
 

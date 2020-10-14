@@ -8,5 +8,7 @@ class SidePanel():
         self.plotBut.pack(side="top", fill=tk.BOTH)
         self.clearButton = tk.Button(self.frame2, text="Clear")
         self.clearButton.pack(side="top", fill=tk.BOTH)
-        self.SelectLIneButton = tk.Button(self.frame2, text="SelectLine")
+        self.SelectLIneButton = tk.Button(self.frame2, text="Select Line")
         self.SelectLIneButton.pack(side="top", fill=tk.BOTH)
+        self.AddLIneButton = tk.Button(self.frame2, text="Add Line")
+        self.AddLIneButton.pack(side="top", fill=tk.BOTH)

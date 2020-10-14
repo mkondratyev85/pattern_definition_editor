@@ -21,6 +21,7 @@ class View:
         self.sidepanel.plotBut.bind("<Button>", self.draw_lines)
         self.sidepanel.clearButton.bind("<Button>", self.clear)
         self.sidepanel.SelectLIneButton.bind("<Button>", self._switch_line_selection_on)
+        self.sidepanel.AddLIneButton.bind("<Button>", self._add_new_line)
 
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
@@ -30,6 +31,10 @@ class View:
 
         self.selected_line_id = None
         self.do_select_lines = False
+
+    def _add_new_line(self, event):
+        self.model.add_new_line()
+        self.draw_lines(event)
 
     def _switch_line_selection_on(self, event):
         self.do_select_lines = True
@@ -67,6 +72,7 @@ class View:
                 self.selected_line_id = clicked_object_ids[0]
                 self.redraw_line(clicked_object_ids[0])
                 self.do_select_lines = False
+                print(line.as_list())
         elif self.base_point_anchor_id in clicked_object_ids:
             self.mode = MOVE_BASE_POINT
         elif self.second_point_anchor_id in clicked_object_ids:
@@ -77,12 +83,17 @@ class View:
 
     def draw_lines(self, event):
         self.canvas.delete('all')
+        print()
+        print('vvvvvvvvv')
+        print(len(self.model.lines))
         for line in self.model.lines:
+            print(line)
+            print()
 
             line.canvas_line_id = []
             for coords in line.get_many_lines():
-                canvas_line_id = self.canvas.create_line(*coords)
-                line.canvas_line_id.append(canvas_line_id)
+                id = self.canvas.create_line(*coords)
+                line.canvas_line_id.append(id)
 
         first_line_id = self.model.lines[0].canvas_line_id[0]
         self.selected_line_id = first_line_id
@@ -101,7 +112,7 @@ class View:
         self.draw_anchors(line_id, new)
 
     def draw_anchors(self, line_id, new=False):
-        RW = 10  # width of point
+        RW = 5  # width of point
         line = self.get_line_by_object_id(line_id)
         x0, y0 = line.base_point
         x1, y1 = line.second_point
