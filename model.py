@@ -10,10 +10,13 @@ class Model:
         self.ypoint = 200
         self.res = None
         self.lines = [
-                Line(base_point=(10,10),
+                Line(base_point=(10, 10),
                      angle=30,
+                     offset=(40, 2),
                      ),
-                Line(base_point=(50,50)),
+                Line(base_point=(50, 50),
+                     offset=(20, 20),
+                     ),
                 ]
 
 
@@ -59,3 +62,27 @@ class Line:
         '''
         x0, y0 = self.base_point
         self.angle = math.degrees(math.atan2((y1 - y0), (x1 - x0)))
+
+    def get_many_lines(self):
+        '''
+        Yields coordinates of lines that could be drawn from self
+        '''
+
+        for i in range(-5, 5, 1):
+            x0, y0 = self.base_point
+            dx, dy = self.offset
+            x0 += i*dx
+            y0 += i*dy
+            new_line = Line(base_point=(x0, y0),
+                            offset=self.offset,
+                            angle=self.angle,
+                            dash_length_items=self.dash_length_items,
+                            )
+            x0, y0 = new_line.base_point
+            x1, y1 = new_line.second_point
+            yield (x0, y0, x1, y1)
+
+    def __hash__(self):
+        return hash(str(self.base_point) + str(self.offset) + str(self.angle) + str(self.dash_length_items))
+
+

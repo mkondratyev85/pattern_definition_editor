@@ -62,19 +62,20 @@ class View:
     def draw_lines(self, event):
         self.canvas.delete('all')
         for line in self.model.lines:
-            x0, y0 = line.base_point
-            x1, y1 = line.second_point
 
-            line_id = self.canvas.create_line(x0, y0, x1, y1)
-            line.canvas_line_id = line_id
+            line.canvas_line_id = []
+            for coords in line.get_many_lines():
+                canvas_line_id = self.canvas.create_line(*coords)
+                line.canvas_line_id.append(canvas_line_id)
 
-        first_line_id = self.model.lines[0].canvas_line_id
+        first_line_id = self.model.lines[0].canvas_line_id[0]
         self.selected_line_id = first_line_id
         self.redraw_line(first_line_id, new=True)
 
     def get_line_by_object_id(self, canvas_object_id):
-        line = next(filter(lambda x: x.canvas_line_id == canvas_object_id, self.model.lines), None)
-        return line
+        for line in self.model.lines:
+            if canvas_object_id in line.canvas_line_id:
+                return line
 
     def redraw_line(self, line_id, new=False):
         line = self.get_line_by_object_id(line_id)
