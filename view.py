@@ -87,15 +87,11 @@ class View:
         line = self.get_line_by_object_id(line_id)
         canvas_line_ids = line.canvas_line_id
         for id, coords in zip(line.canvas_line_id, line.get_many_lines()):
-            
-        # x0, y0 = line.base_point
-        # x1, y1 = line.second_point
-            # coords = (x0, y0, x1, y1)
             self.canvas.coords(id, coords)
         self.draw_anchors(line_id, new)
 
     def draw_anchors(self, line_id, new=False):
-        RW=5  # width of point
+        RW = 5  # width of point
         line = self.get_line_by_object_id(line_id)
         x0, y0 = line.base_point
         x1, y1 = line.second_point

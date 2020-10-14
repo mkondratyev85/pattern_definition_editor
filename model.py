@@ -78,9 +78,21 @@ class Line:
                             angle=self.angle,
                             dash_length_items=self.dash_length_items,
                             )
-            x0, y0 = new_line.base_point
-            x1, y1 = new_line.second_point
-            yield (x0, y0, x1, y1)
+            for j in range(-5, 5, 1):
+                x0, y0 = new_line.base_point
+                x1, y1 = new_line.second_point
+                dx, dy = x1-x0, y1-y0
+                x0 += j*dx
+                y0 += j*dy
+                new_new_line = Line(base_point=(x0, y0),
+                                    offset=self.offset,
+                                    angle=self.angle,
+                                    dash_length_items=self.dash_length_items,
+                                    )
+
+                x0, y0 = new_new_line.base_point
+                x1, y1 = new_new_line.second_point
+                yield (x0, y0, x1, y1)
 
     def __hash__(self):
         return hash(str(self.base_point) + str(self.offset) + str(self.angle) + str(self.dash_length_items))
