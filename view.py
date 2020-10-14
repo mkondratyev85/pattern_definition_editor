@@ -39,19 +39,15 @@ class View:
         x, y = event.x, event.y
         line = self.get_line_by_object_id(self.selected_line_id)
         line.base_point = x, y
-        self.draw_anchors(self.selected_line_id)
         self.redraw_line(self.selected_line_id)
-        print('motion')
 
     def on_line_click(self, event):
         clicked_object_id = event.widget.find_closest(event.x, event.y)[0]
         line = self.get_line_by_object_id(clicked_object_id)
         if line:
             self.selected_line_id = clicked_object_id
-            self.draw_anchors(clicked_object_id)
-            print(line)
+            self.redraw_line(clicked_object_id)
         if clicked_object_id == self.base_point_anchor_id:
-            print('ya')
             self.mode = MOVE_BASE_POINT
         
 
@@ -66,30 +62,35 @@ class View:
 
         first_line_id = self.model.lines[0].canvas_line_id
         self.selected_line_id = first_line_id
-        self.draw_anchors(first_line_id, new=True)
+        self.redraw_line(first_line_id, new=True)
 
     def get_line_by_object_id(self, canvas_object_id):
         line = next(filter(lambda x: x.canvas_line_id == canvas_object_id, self.model.lines), None)
         return line
 
-    def redraw_line(self, line_id):
+    def redraw_line(self, line_id, new=False):
         line = self.get_line_by_object_id(line_id)
         x0, y0 = line.base_point
         x1, y1 = line.second_point
         coords = (x0, y0, x1, y1)
         self.canvas.coords(line_id, coords)
+        self.draw_anchors(line_id, new)
 
     def draw_anchors(self, line_id, new=False):
         RW=5  # width of point
         line = self.get_line_by_object_id(line_id)
         x0, y0 = line.base_point
         x1, y1 = line.second_point
-        coords = (x0-RW, y0-RW, x0+RW, y0+RW)
+        base_coords = (x0-RW, y0-RW, x0+RW, y0+RW)
+        second_coords = (x1-2*RW, y1-RW, x1+2*RW, y1+RW)
         if new:
-            id = self.canvas.create_rectangle(*coords)
+            id = self.canvas.create_rectangle(*base_coords)
             self.base_point_anchor_id = id
+            id = self.canvas.create_rectangle(*second_coords)
+            self.second_point_anchor_id = id
         else:
-            self.canvas.coords(self.base_point_anchor_id, coords)
+            self.canvas.coords(self.base_point_anchor_id, base_coords)
+            self.canvas.coords(self.second_point_anchor_id, second_coords)
 
 
 
