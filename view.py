@@ -71,7 +71,6 @@ class View:
         val = self.base_point_var.get()
         line = self.get_line_by_object_id(self.selected_line_id)
         try:
-            val = val[1:-2] # remove square braces
             val = val.split(',')
             x = float(val[0])
             y = float(val[1])
@@ -85,7 +84,6 @@ class View:
         val = self.offset_var.get()
         line = self.get_line_by_object_id(self.selected_line_id)
         try:
-            val = val[1:-2] # remove square braces
             val = val.split(',')
             dx = float(val[0])
             dy = float(val[1])
@@ -99,7 +97,7 @@ class View:
         val = self.dash_var.get()
         line = self.get_line_by_object_id(self.selected_line_id)
         try:
-            val = val[1:-2] # remove square braces
+            # val = val[1:-2] # remove square braces
             val = val.split(',')
             d0 = float(val[0])
             d1 = float(val[1])
@@ -186,9 +184,13 @@ class View:
     def _update_entries(self):
         line = self.get_line_by_object_id(self.selected_line_id)
         self.angle_var.set(line.angle)
-        self.base_point_var.set(f'{line.base_point}')
-        self.offset_var.set(f'{line.offset}')
-        self.dash_var.set(f'{line.dash_length_items}')
+        self.base_point_var.set(f'{line.base_point[0]}, {line.base_point[1]}')
+        self.offset_var.set(f'{line.offset[0]}, {line.offset[1]}')
+        if line.dash_length_items:
+            self.dash_var.set(f'{line.dash_length_items[0]}, {line.dash_length_items[1]}')
+        else:
+            self.dash_var.set('[please add dash to line first]')
+        
 
     def draw_lines(self, event):
         self.canvas.delete('all')
